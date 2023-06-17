@@ -35,7 +35,8 @@ const SignIn = async (userInfo) => {
           id: existingUser.id,
           adminType: existingUser.adminType,
         });
-        return FormateData({ id: existingUser.id, token });
+        const userWithoutPassAndSalt = Exclude(existingUser, ['password', 'salt']);
+        return FormateData({ accessToken: token, admin: userWithoutPassAndSalt  });
       }
     }
 
@@ -45,9 +46,30 @@ const SignIn = async (userInfo) => {
   }
 };
 
+// Admin - Get Single Admin/SubAdmin Profile
+const GetAdminProfile = async (adminInfo) => {
+    
+    try{
+        const { adminId } = adminInfo;
+
+    const admin = await prisma.User.findUnique({
+        where: {
+            id: adminId
+        }
+    })
+
+    const adminDetails = Exclude(admin, ['password', 'salt']);
+    return FormateData(adminDetails);
+
+    } catch (error) {
+        throw new APIError("Failed to find admin details", error);
+      }
+    
+  }
+
 
 //Admin - Update Admin Profile
-const UpdateProfile = async (updateInfo) => {
+const UpdateAdminProfile = async (updateInfo) => {
 
     const { id, updatedData } = updateInfo;
 
@@ -100,28 +122,30 @@ const GetAllAdmins = async () => {
   };
 
   //Admin - Manage Admin 
-  // --- Get Single Admin/SubAdmin Profile
-  const GetSingleAdminDetails = async (adminInfo) => {
-    
-    try{
-        const { adminId } = adminInfo;
 
-    const admin = await prisma.User.findUnique({
-        where: {
+// --- Update Single Admin/SubAdmin Details
+const GetSingleAdminDetails = async (adminInfo) => {
+    
+  try{
+
+      const { adminId } = adminInfo;
+
+      const adminDetails = await prisma.User.findUnique({
+          where: {
             id: adminId
-        }
-    })
+          }
+      })
 
-    const adminDetails = Exclude(admin, ['password', 'salt']);
-    return FormateData(adminDetails);
+  const updatedAdminDetails = Exclude(adminDetails, ['password', 'salt']);
+  return FormateData(updatedAdminDetails);
 
-    } catch (error) {
-        throw new APIError("Failed to find admin details", error);
-      }
-    
-  }
+  } catch (error) {
+      throw new APIError("Failed to find admin details", error);
+    }
+  
+}
 
-  //Admin - Manage Admin 
+
   // --- Update Single Admin/SubAdmin Details
   const UpdateSingleAdminDetails = async (adminInfo) => {
     
@@ -177,7 +201,7 @@ const GetAllUsers = async () => {
   try {
     const users = await prisma.User.findMany();
 
-    const usersWithoutPassword = ExcludeMany(users, ["password"]);
+    const usersWithoutPassword = ExcludeMany(users, ["password", "salt"]);
     return FormateData(usersWithoutPassword);
 
   } catch (error) {
@@ -264,13 +288,14 @@ const GetAllUsers = async () => {
 
 module.exports = {
   SignIn,
-  GetSingleUserDetails,
-  GetAllUsers,
-  UpdateProfile,
+  GetAdminProfile,
+  UpdateAdminProfile,
   GetAllAdmins,
   GetSingleAdminDetails,
   UpdateSingleAdminDetails,
   DeleteSingleAdminDetails,
+  GetAllUsers,
+  GetSingleUserDetails,
+  UpdateSingleUserDetails,
   DeleteSingleUserDetails,
-  UpdateSingleUserDetails
 };

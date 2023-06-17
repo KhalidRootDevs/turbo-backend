@@ -13,8 +13,7 @@ const {
 //User Signup
 const SignUp = async (userInputs) => {
   try {
-    const { name, email, password, adminType = "user" } = userInputs;
-    //console.log(userInputs)
+
     const existingUser = await prisma.User.findUnique({
       where: {
         email: email,
@@ -32,13 +31,14 @@ const SignUp = async (userInputs) => {
     //create user
     const user = await prisma.User.create({
       data: {
-        name,
-        email,
+        name: userInputs?.name,
+        email: userInputs?.email,
         password: hashedPassword,
-        adminType,
-        salt,
+        adminType: userInputs?.adminType,
+        salt: salt,
       },
     });
+
 
     //generate jwt token
     const token = await GenerateSignature({
@@ -47,8 +47,10 @@ const SignUp = async (userInputs) => {
       adminType: user.adminType,
     });
 
+    const userWithoutPassAndSalt = Exclude(user, ['password', 'salt']);
+
     //return final user data
-    return FormateData({ id: user._id, token });
+    return FormateData({ accessToken: token, user: userWithoutPassAndSalt  });
   } catch (err) {
     throw new APIError("Failed to create user", err);
   }
@@ -78,7 +80,8 @@ const SignIn = async (userInfo) => {
           id: existingUser.id,
           adminType: existingUser.adminType,
         });
-        return FormateData({ id: existingUser.id, token });
+        const userWithoutPassAndSalt = Exclude(existingUser, ['password', 'salt']);
+        return FormateData({ accessToken: token, user: userWithoutPassAndSalt  });
       }
     }
 
@@ -97,51 +100,17 @@ const GetProfile = async (id) => {
       },
     });
 
-    const userWithoutPassword = Exclude(user, ['password']);
+    const userWithoutPasswordAndSalt = Exclude(user, ['password', 'salt']);
 
-    return FormateData(userWithoutPassword);
+    return FormateData(userWithoutPasswordAndSalt);
   } catch (err) {
     throw new APIError("User Not found", err);
   }
 };
 
-//Admin - Manage all users
-const GetAllUsers = async () => {
-  try {
-    const users = await prisma.User.findMany();
-    const usersWithoutPassword = ExcludeMany(users, ["password"]);
-
-    return FormateData(usersWithoutPassword);
-  } catch (error) {
-    throw new APIError("Failed to find users", error);
-  }
-};
-
-//Admin - Update user role
-const UpdateUserRole = async (updatedData) => {
-  const { id, adminType: updatedInfo } = updatedData;
-
-  try {
-    const user = await prisma.User.update({
-      where: {
-        id: id,
-      },
-      data: {
-        adminType: updatedInfo,
-      },
-    });
-
-    const { password, hashedPassword, ...userInfo } = user;
-    return FormateData(userInfo);
-  } catch (error) {
-    throw new APIError("Failed to find users", error);
-  }
-};
 
 module.exports = {
   SignUp,
   SignIn,
-  GetProfile,
-  GetAllUsers,
-  UpdateUserRole,
+  GetProfile
 };

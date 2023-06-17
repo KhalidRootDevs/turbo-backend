@@ -91,15 +91,20 @@ enum ThumbnailType {
   Image
 }
 
+enum NotificationType {
+  OneSignal
+  FCM
+}
+
 model User {
   id String @id @default(auto()) @map("_id") @db.ObjectId
   name String?
   email String @unique
   password String 
-  adminType String @default("user")
+  adminType String? @default("user")
   emailVerified DateTime?
   image String?
-  salt String
+  salt String?
   status Boolean @default(false) 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -152,4 +157,26 @@ model Highlight {
   thumbnailType ThumbnailType @default(None)
   imageUrl String?
   imageFile String?
+}
+
+model AppSettings {
+ id String @id @default(auto()) @map("_id") @db.ObjectId
+ notificationType NotificationType @default(OneSignal)
+ name String @default("appsettings") @unique
+ oneSignalAppID String?
+ oneSignalApiKey String?
+ firebaseServerKey String?
+ firebaseTopics String?
+ sportsApiBasedUrl String?
+ sportsApiKey String?
+ androidSettings Json?
+ iosSettings Json?
+}
+
+
+model News {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  title String
+  image String
+  date DateTime?
 }

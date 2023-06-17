@@ -35,8 +35,8 @@ module.exports = (app) => {
       }
     });
 
-    //Admin - Get Admin Profile
-    app.get("/user/profile", userAuth, userAuthorization, async (req, res, next) => {
+    //Admin - Get Single User Profile
+    app.get("/user/profile", userAuth, async (req, res, next) => {
       try {
         const { id } = req.user;
         const data  = await GetProfile(id);
@@ -49,49 +49,21 @@ module.exports = (app) => {
       }
     });
 
-    //Admin - Manage All Users
-    app.get("/users", userAuth, userAuthorization, async (req, res, next) => {
-      try {
 
-        const data = await GetAllUsers();
-        res.json({
-          message: "All users are fetched successfully",
-          data: data
-        })
-      } catch (err) {
-        next(err);
-      }
-    });
+    // //User - Update Single User Details
+    // app.get("/user/:id", userAuth, async (req, res, next) => {
+    //   try {
+    //     const { id } = req.params;
+    //     const data  = await GetProfile(id);
+    //     return res.json({
+    //       message: "User profile found",
+    //       data
+    //     });
+    //   } catch (err) {
+    //     next(err);
+    //   }
+    // });
 
-    //Admin - Get Single User Details
-    app.get("/user/:id", userAuth, userAuthorization, async (req, res, next) => {
-      try {
-        const { id } = req.params;
-        const data  = await GetProfile(id);
-        return res.json({
-          message: "User profile found",
-          data
-        });
-      } catch (err) {
-        next(err);
-      }
-    });
-
-    //Admin - Update single user profile
-    app.put("/user/:id", userAuth, userAuthorization, async (req, res, next) => {
-      try {
-        const { id } = req.params;
-        const { adminType } = req.body;
-
-        const data  = await UpdateUserRole({ id, adminType });
-        return res.json({
-          message: "User role updated successfully",
-          data
-        });
-      } catch (err) {
-        next(err);
-      }
-    });
 
 }
 

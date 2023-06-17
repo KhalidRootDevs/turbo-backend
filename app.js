@@ -4,6 +4,7 @@ const cors = require('cors');
 const user = require('./src/api/user.js');
 const admin = require('./src/api/admin.js');
 const manageMatch = require('./src/api/match.js');
+const manageAppSettings = require('./src/api/appSettings.js');
 // const HandleErrors = require('./utils/error-handler')
 
  const expressApp = async (app) => {
@@ -22,6 +23,7 @@ const manageMatch = require('./src/api/match.js');
     user(app);
     admin(app);
     manageMatch(app);
+    manageAppSettings(app);
 
     // // error handling
     // app.use(HandleErrors);

@@ -31,7 +31,8 @@ module.exports.GenerateSignature = async (payload) => {
 
 module.exports.ValidateSignature = async (req) => {
   try {
-    const signature = req.get("Authorization");
+    //const signature = req.get("Authorization"); //Another way from direct Authorization 
+    const signature = req.headers.authorization;  //Taking auth token from headers
     const payload = await jwt.verify(signature.split(" ")[1], APP_SECRET);
     req.user = payload;
     return true;
@@ -77,4 +78,18 @@ module.exports.FormateData = (data) => {
   } else {
     throw new Error("Data Not found!");
   }
+};
+
+module.exports.UpdateObject = (oldObject, newObject) => {
+ // console.log('inside helper func', oldObject);
+  const newData = Object?.entries(oldObject);
+  newData.forEach(item => {
+      const key = item[0];
+      const value = item[1];
+
+      if (newObject.hasOwnProperty(key)) {
+          oldObject[key] = newObject[key];
+      }
+  });
+  return oldObject;
 };

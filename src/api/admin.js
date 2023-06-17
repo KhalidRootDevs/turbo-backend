@@ -1,16 +1,17 @@
 
 const { 
-    UpdateProfile, GetAllAdmins, 
+    SignIn,
+    GetAllAdmins, 
     GetSingleAdminDetails, UpdateSingleAdminDetails, 
     DeleteSingleAdminDetails, GetSingleUserDetails, 
-    DeleteSingleUserDetails, UpdateSingleUserDetails } 
+    DeleteSingleUserDetails, UpdateSingleUserDetails, GetAdminProfile, UpdateAdminProfile, GetAllUsers } 
     = require("../services/admin-services.js");
-const {
-    SignIn,
-    GetProfile,
-    GetAllUsers,
-    UpdateUserRole,
-} = require("../services/user-service.js");
+// const {
+//     SignIn,
+//     GetProfile,
+//     GetAllUsers,
+//     UpdateUserRole,
+// } = require("../services/user-service.js");
 // const userAuth = require('./middleware/userAuth.js');
 const { userAuth, userAuthorization } = require("./middleware/userAuth");
 
@@ -38,9 +39,9 @@ module.exports = (app) => {
         async (req, res, next) => {
             try {
                 const { id } = req.user;
-                const data = await GetProfile(id);
+                const data = await GetAdminProfile({ adminId : id});
                 return res.json({
-                    message: "User profile found",
+                    message: "Admin profile found",
                     data,
                 });
             } catch (err) {
@@ -49,7 +50,7 @@ module.exports = (app) => {
         }
     );
 
-    //Admin - Edit Admin Profile
+    //Admin - Update Admin Profile
     app.put(
         "/admin/profile",
         userAuth,
@@ -58,7 +59,7 @@ module.exports = (app) => {
             try {
                 const { id } = req.user;
                 const updatedData = req.body;
-                const data = await UpdateProfile({ id, updatedData });
+                const data = await UpdateAdminProfile({ id, updatedData });
                 return res.json({
                     message: "Admin profile updated successfully",
                     data,
@@ -110,7 +111,6 @@ module.exports = (app) => {
         async (req, res, next) => {
             try {
                 const adminId = req.params.id;
-
                 const data = await GetSingleAdminDetails({ adminId });
 
                 res.json({
