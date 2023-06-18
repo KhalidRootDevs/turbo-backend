@@ -18,7 +18,7 @@ module.exports = (app) => {
     })
 
     //Get all matches
-    app.get('/match', userAuth, userAuthorization, async(req, res, next) => {
+    app.get('/match',  async(req, res, next) => {
 
         const data = await GetAllMatch();
 
@@ -30,7 +30,7 @@ module.exports = (app) => {
     })
 
     //Get a single match
-    app.get('/match/:matchId', userAuth, userAuthorization, async (req, res) => {
+    app.get('/match/:matchId',  async (req, res) => {
 
         const id = req.params.matchId;
 
@@ -44,7 +44,7 @@ module.exports = (app) => {
     })
 
     //Delete a match
-    app.delete('/match/:matchId', userAuth, userAuthorization, async (req, res) => {
+    app.delete('/match/:matchId',  async (req, res) => {
 
         const id = req.params.matchId;
 
@@ -58,7 +58,7 @@ module.exports = (app) => {
     })
 
     //Update a match
-    app.put('/match/:matchId', userAuth, userAuthorization, async(req, res) => {
+    app.put('/match/:matchId',  async(req, res) => {
         const id = req.params.matchId;
         
 
