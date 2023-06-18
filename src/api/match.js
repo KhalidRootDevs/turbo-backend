@@ -6,7 +6,7 @@ const { userAuth, userAuthorization } = require("./middleware/userAuth");
 module.exports = (app) => {
 
     //Create a new match
-    app.post('/match', userAuth, userAuthorization, async (req, res, next) => {
+    app.post('/match',  async (req, res, next) => {
         const matchData = req.body;
 
         const data = await CreateMatch({ matchData })
