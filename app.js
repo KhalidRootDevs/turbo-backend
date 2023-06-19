@@ -1,33 +1,25 @@
-
 const express = require('express');
 const cors = require('cors');
-const user = require('./src/api/user.js');
-const admin = require('./src/api/admin.js');
-const manageMatch = require('./src/api/match.js');
-const manageAppSettings = require('./src/api/appSettings.js');
-// const HandleErrors = require('./utils/error-handler')
+const adminRouter = require('./src/api/admin.js');
+const appSettingsRouter = require('./src/api/appSettings.js');
+const matchRouter = require('./src/api/match.js');
+const userRouter = require('./src/api/user.js');
+const errorHandler = require('./utils/error-handler');
 
- const expressApp = async (app) => {
-
-    // middleware
+const expressApp = (app) => {
+    // Middleware
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(cors());
 
-    // app.use(express.json({ limit: '1mb'}));
-    // app.use(express.urlencoded({ extended: true, limit: '1mb'}));
-    // app.use(cors());
-    // app.use(express.static(__dirname + '/public'))
+    // API routes
+    app.use('/admin', adminRouter);
+    app.use('/appsettings', appSettingsRouter);
+    app.use('/match', matchRouter);
+    app.use('/user', userRouter);
 
-    // //api
-    user(app);
-    admin(app);
-    manageMatch(app);
-    manageAppSettings(app);
-
-    // // error handling
-    // app.use(HandleErrors);
-    
-}
+    // Error handling middleware
+    app.use(errorHandler);
+};
 
 module.exports = expressApp;

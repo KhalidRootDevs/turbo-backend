@@ -1,25 +1,21 @@
 const express = require('express');
 const expressApp = require('./app.js');
-// const { PORT } = require('./config');
-// const expressApp = require('./express-app');
-// dotenv.config();
-
 
 const PORT = process.env.PORT || 6000;
 
-const StartServer = async() => {
-
+const startServer = () => {
     const app = express();
-    
-    await expressApp(app);
 
-    app.listen(PORT, () => {
-        console.log(`listening to port ${PORT}`);
-    })
-    .on('error', (err) => {
-        console.log(err);
-        process.exit();
-    })
-}
+    expressApp(app)
+        .then(() => {
+            app.listen(PORT, () => {
+                console.log(`Server started on port ${PORT}`);
+            });
+        })
+        .catch((error) => {
+            console.error('Error setting up the Express app:', error);
+            process.exit(1);
+        });
+};
 
-StartServer();
+startServer();

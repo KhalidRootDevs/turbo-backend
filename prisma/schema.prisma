@@ -1,66 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// generator client {
-//   provider = "prisma-client-js"
-
-// }
-
-// datasource db {
-//   provider = "mongodb"
-//   url      = env("DATABASE_URL")
-// }
-
-
-// model User {
-//   id String @id @default(auto()) @map("_id") @db.ObjectId
-//   email String @unique
-//   password String
-//   adminType String?
-//   emailVerified DateTime?
-//   image String?
-//   hashedPassword String? 
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-// }
-
-
-// model Match {
-//   id String @id @default(auto()) @map("_id") @db.ObjectId
-//   matchTime       String  
-//   matchTitle      String    
-//   teamOneName     String    
-//   teamOneImage    String    
-//   teamTwoName     String    
-//   teamTwoImage    String
-//   matchStatus     Boolean   
-//   streamingSources Stream[]
-// }
-
-
-// model Stream {
-//   id String @id @default(auto()) @map("_id") @db.ObjectId
-//   matchId String @db.ObjectId
-//   streamTitle       String   
-//   isPremium         Boolean  
-//   resulation        String   
-//   platform          String
-//   portraitWatermark String  
-//   landscapeWatermark String 
-//   streamType        String   
-//   streamUrl         String   
-//   headers           String?
-//   streamKey         String? 
-
-//   match            Match    @relation(fields: [matchId], references: [id])
-// }
-
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
-
 }
 
 datasource db {
@@ -68,115 +7,104 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
-// emuns
-
 enum StreamType {
-  OwnStream
-  Restricted
-  M3u8
-  Web
+  OWN_STREAM
+  RESTRICTED
+  M3U8
+  WEB
 }
 
 enum VideoType {
-  None
-  Youtube
-  Sportmonk
+  NONE
+  YOUTUBE
+  SPORTMONK
 }
 
 enum ThumbnailType {
-  None
-  Url
-  Image
+  NONE
+  URL
+  IMAGE
 }
 
 enum NotificationType {
-  OneSignal
+  ONE_SIGNAL
   FCM
 }
 
 model User {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  name String?
-  email String @unique
-  password String 
-  adminType String? @default("user")
+  id            String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String    @unique
+  password      String
+  adminType     String?   @default("user")
   emailVerified DateTime?
-  image String?
-  salt String?
-  status Boolean @default(false) 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  image         String?
+  salt          String?
+  status        Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
-
 model Match {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  fixtureId       String?
-  matchTime       String  
-  matchTitle      String    
-  teamOneName     String    
-  teamOneImage    String    
-  teamTwoName     String    
-  teamTwoImage    String
-  matchStatus     Boolean   
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  fixtureId     String?
+  matchTime     String
+  matchTitle    String
+  teamOneName   String
+  teamOneImage  String
+  teamTwoName   String
+  teamTwoImage  String
+  matchStatus   Boolean
   streamingSources Stream[]
 }
 
-
-
 model Stream {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  matchId String @db.ObjectId
-  streamTitle       String   
-  isPremium         Boolean  
-  resulation        String   
-  platform          String
-  portraitWatermark String  
-  landscapeWatermark String 
-  streamType        StreamType @default(OwnStream)   
-  streamUrl         String?   
-  headers           String?
-  streamKey         String? 
-  //streamRestrictedData   String?
-
-  match  Match  @relation(fields: [matchId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  id                 String      @id @default(auto()) @map("_id") @db.ObjectId
+  matchId            String      @db.ObjectId
+  streamTitle        String
+  isPremium          Boolean
+  resolution         String
+  platform           String
+  portraitWatermark  String
+  landscapeWatermark String
+  streamType         StreamType  @default(OWN_STREAM)
+  streamUrl          String?
+  headers            String?
+  streamKey          String?
+  match              Match       @relation(fields: [matchId], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
-
 model Highlight {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  fixtureId String?
-  title String
-  shortDescription String?
-  status Boolean
-  youtubeUrl String?
-  youtubeThumbnail String?
-  videoType VideoType @default(None)
-  thumbnailType ThumbnailType @default(None)
-  imageUrl String?
-  imageFile String?
+  id                 String          @id @default(auto()) @map("_id") @db.ObjectId
+  fixtureId          String?
+  title              String
+  shortDescription   String?
+  status             Boolean
+  youtubeUrl         String?
+  youtubeThumbnail   String?
+  videoType          VideoType       @default(NONE)
+  thumbnailType      ThumbnailType  @default(NONE)
+  imageUrl           String?
+  imageFile          String?
 }
 
 model AppSettings {
- id String @id @default(auto()) @map("_id") @db.ObjectId
- notificationType NotificationType @default(OneSignal)
- name String @default("appsettings") @unique
- oneSignalAppID String?
- oneSignalApiKey String?
- firebaseServerKey String?
- firebaseTopics String?
- sportsApiBasedUrl String?
- sportsApiKey String?
- androidSettings Json?
- iosSettings Json?
+  id                  String            @id @default(auto()) @map("_id") @db.ObjectId
+  notificationType    NotificationType  @default(ONE_SIGNAL)
+  name                String            @default("appsettings") @unique
+  oneSignalAppID      String?
+  oneSignalApiKey     String?
+  firebaseServerKey   String?
+  firebaseTopics      String?
+  sportsApiBasedUrl   String?
+  sportsApiKey        String?
+  androidSettings     Json?
+  iosSettings         Json?
 }
 
-
 model News {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  title String
-  image String
-  date DateTime?
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  image       String
+  date        DateTime?
 }

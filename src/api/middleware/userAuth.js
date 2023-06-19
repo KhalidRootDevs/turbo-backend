@@ -1,27 +1,30 @@
 const { ValidateSignature } = require("../../utils");
 
 const userAuth = async (req, res, next) => {
-  const isAuthorized = await ValidateSignature(req);
+  try {
+    const isSignatureValid = await ValidateSignature(req);
 
-  console.log("IsAuthorized", isAuthorized);
+    console.log("IsAuthorized", isSignatureValid);
 
-  if (isAuthorized) {
-    return next();
+    if (isSignatureValid) {
+      return next();
+    }
+
+    return res.status(403).json({ message: "Please log in first" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal server error" });
   }
-  return res.status(403).json({ message: "Please do login first" });
 };
 
-const userAuthorization = async (req, res, next) => {
-  if (
-    req.user.adminType === "superAdmin" ||
-    req.user.adminType === "admin" ||
-    req.user.adminType === "subAdmin"
-  ) {
+const userAuthorization = (req, res, next) => {
+  const { adminType } = req.user;
+
+  if (adminType === "superAdmin" || adminType === "admin" || adminType === "subAdmin") {
     return next();
   }
-  return res
-    .status(403)
-    .json({ message: "Your crtedentials are not authorized" });
+
+  return res.status(403).json({ message: "Your credentials are not authorized" });
 };
 
 module.exports = {

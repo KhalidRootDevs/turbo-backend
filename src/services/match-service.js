@@ -1,26 +1,14 @@
 const prisma = require("../../prisma");
 const { createStreaming } = require("../helpers/streamingSources");
-const { FormateData } = require("../utils");
-const { APIError } = require("../utils/app-error");
+const { FormateData, APIError } = require("../utils");
 
-//Create a new match
-
-const CreateMatch = async (matchInfo) => {
-  const { matchData } = matchInfo;
+const createMatch = async (matchData) => {
   try {
-    //Calling Streaming
     const finalStreamingData = createStreaming(matchData);
 
-    //Create Match
-    const createdMatch = await prisma.Match.create({
-      data: { 
-        matchTime: matchData?.matchTime,
-        matchTitle: matchData?.matchTitle,
-        teamOneName: matchData?.teamOneName,
-        teamOneImage: matchData?.teamOneImage,
-        teamTwoName: matchData?.teamTwoName,
-        teamTwoImage: matchData?.teamTwoImage,
-        matchStatus: matchData?.matchStatus,
+    const createdMatch = await prisma.match.create({
+      data: {
+        ...matchData,
         streamingSources: {
           createMany: {
             data: finalStreamingData,
@@ -28,77 +16,52 @@ const CreateMatch = async (matchInfo) => {
         },
       },
     });
+
     return FormateData(createdMatch);
   } catch (error) {
-    console.error(error);
-    throw new APIError("Match has not been created!", error);
+    throw error;
   }
 };
 
-//Get all matches
-
-const GetAllMatch = async () => {
+const getAllMatches = async () => {
   try {
-    const matches = await prisma.Match.findMany();
+    const matches = await prisma.match.findMany();
     return FormateData(matches);
   } catch (error) {
-    console.error(error);
-    throw new APIError("No matches found!", error);
+    throw error;
   }
 };
 
-//Get a single match
-const GetSingleMatch = async (id) => {
+const getSingleMatch = async (id) => {
   try {
-    const match = await prisma.Match.findUnique({
+    const match = await prisma.match.findUnique({
       where: {
-        id: id,
+        id,
       },
       include: {
-        streamingSources: true
-      }
+        streamingSources: true,
+      },
     });
+
     return FormateData(match);
   } catch (error) {
-    console.error(error);
-    throw new APIError("Failed to find!", error);
+    throw error;
   }
 };
 
-const UpdateMatch = async (updatedMatchInfo) => {
-  const { updatedMatchData, id } = updatedMatchInfo;
-
+const updateMatch = async (updatedMatchData, id) => {
   try {
-
-    const updatedMatch = await prisma.Match.update({
-      where: { id: id }, // Provide the match ID you want to update
+    const updatedMatch = await prisma.match.update({
+      where: { id },
       data: {
-        matchTime: updatedMatchData.matchTime,
-        matchTitle: updatedMatchData.matchTitle,
-        teamOneName: updatedMatchData.teamOneName,
-        teamOneImage: updatedMatchData.teamOneImage,
-        teamTwoName: updatedMatchData.teamTwoName,
-        teamTwoImage: updatedMatchData.teamTwoImage,
-        matchStatus: updatedMatchData.matchStatus,
+        ...updatedMatchData,
         streamingSources: {
           updateMany: updatedMatchData.streamingSources.map(
             (matchStreamingData) => ({
               where: {
                 id: matchStreamingData.id,
               },
-
-              data: {
-                streamTitle: matchStreamingData?.streamTitle,
-                streamType: matchStreamingData?.streamType,
-                resulation: matchStreamingData?.resulation,
-                platform: matchStreamingData?.platform,
-                isPremium: matchStreamingData?.isPremium,
-                portraitWatermark: matchStreamingData?.portraitWatermark,
-                landscapeWatermark: matchStreamingData?.landscapeWatermark,
-                streamUrl: matchStreamingData?.streamUrl,
-                streamKey: matchStreamingData?.streamKey,
-                headers: matchStreamingData?.headers
-              },
+              data: matchStreamingData,
             })
           ),
         },
@@ -106,32 +69,29 @@ const UpdateMatch = async (updatedMatchInfo) => {
     });
 
     return FormateData(updatedMatch);
-
   } catch (error) {
-    console.error(error);
-    throw new APIError("Failed to update match!", error);
+    throw error;
   }
 };
 
-//Delete a match
-const DeleteMatch = async (id) => {
+const deleteMatch = async (id) => {
   try {
-    const match = await prisma.Match.delete({
+    const match = await prisma.match.delete({
       where: {
-        id: id,
+        id,
       },
     });
+
     return FormateData(match);
   } catch (error) {
-    console.error(error);
-    throw new APIError("Failed to delete!", error);
+    throw error;
   }
 };
 
 module.exports = {
-  CreateMatch,
-  GetAllMatch,
-  GetSingleMatch,
-  DeleteMatch,
-  UpdateMatch,
+  createMatch,
+  getAllMatches,
+  getSingleMatch,
+  deleteMatch,
+  updateMatch,
 };

@@ -3,13 +3,13 @@
 
 
 //Creating straming sources with streaming data
-const createStreaming = ( matchData ) => {
+const createStreaming = (matchData) => {
 
     let streamingData = [];
     // let streamRestricted = [];
 
-       // Check Restricted
-       matchData?.streamingSources?.map(source => {
+    // Check Restricted
+    matchData?.streamingSources?.map(source => {
 
         // if(source?.streamType === 'Restricted'){
         //     streamRestricted = [];

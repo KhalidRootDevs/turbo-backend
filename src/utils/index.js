@@ -1,95 +1,89 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-const  APP_SECRET  = process.env.APP_SECRET;
+const APP_SECRET = process.env.APP_SECRET;
 
-//Utility functions
-module.exports.GenerateSalt = async () => {
-  return await bcrypt.genSalt();
+// Utility functions
+module.exports.generateSalt = async () => {
+  return bcrypt.genSalt();
 };
 
-module.exports.GeneratePassword = async (password, salt) => {
-  return await bcrypt.hash(password, salt);
+module.exports.generatePassword = async (password, salt) => {
+  return bcrypt.hash(password, salt);
 };
 
-module.exports.ValidatePassword = async (
-  enteredPassword,
-  savedPassword,
-  salt
-) => {
-  return (await this.GeneratePassword(enteredPassword, salt)) === savedPassword;
+module.exports.validatePassword = async (enteredPassword, savedPassword, salt) => {
+  const hashedPassword = await this.generatePassword(enteredPassword, salt);
+  return hashedPassword === savedPassword;
 };
 
-module.exports.GenerateSignature = async (payload) => {
+module.exports.generateSignature = async (payload) => {
   try {
-    return await jwt.sign(payload, APP_SECRET, { expiresIn: "30d" });
+    return jwt.sign(payload, APP_SECRET, { expiresIn: "30d" });
   } catch (error) {
-    console.log(error);
-    return error;
+    throw new Error("Failed to generate signature.");
   }
 };
 
-module.exports.ValidateSignature = async (req) => {
+module.exports.validateSignature = async (req) => {
   try {
-    //const signature = req.get("Authorization"); //Another way from direct Authorization 
-    const signature = req.headers.authorization;  //Taking auth token from headers
-    const payload = await jwt.verify(signature.split(" ")[1], APP_SECRET);
+    const signature = req.headers.authorization;
+    if (!signature) {
+      throw new Error("Authorization token is missing.");
+    }
+
+    const token = signature.split(" ")[1];
+    const payload = await jwt.verify(token, APP_SECRET);
     req.user = payload;
-    return true;
   } catch (error) {
-    console.log(error);
-    return false;
+    throw new Error("Failed to validate signature.");
   }
 };
 
-module.exports.ExcludeMany = async (users, keys) => {
+module.exports.excludeMany = (users, keys) => {
+  if (!Array.isArray(users)) {
+    throw new Error("Users must be an array.");
+  }
 
-  let allUsers = [];
-  users?.map(user => {
-      for (let key of keys) {
-          delete user[key];
-      }
-      allUsers.push(user);
-  });
-  return allUsers;
-  
-}
+  for (let user of users) {
+    for (let key of keys) {
+      delete user[key];
+    }
+  }
 
-// function exclude(user, keys) {
-//   for (let key of keys) {
-//       delete user[key];
-//   }
-//   return user;
-// }
+  return users;
+};
 
+module.exports.exclude = (user, keys) => {
+  if (typeof user !== "object" || Array.isArray(user)) {
+    throw new Error("User must be an object.");
+  }
 
-module.exports.Exclude =  (user, keys) => {
-  for(let key of keys) {
+  for (let key of keys) {
     delete user[key];
   }
+
   return user;
-}
+};
 
-
-
-module.exports.FormateData = (data) => {
+module.exports.formatData = (data) => {
   if (data) {
     return data;
   } else {
-    throw new Error("Data Not found!");
+    throw new Error("Data not found.");
   }
 };
 
-module.exports.UpdateObject = (oldObject, newObject) => {
- // console.log('inside helper func', oldObject);
-  const newData = Object?.entries(oldObject);
-  newData.forEach(item => {
-      const key = item[0];
-      const value = item[1];
+module.exports.updateObject = (oldObject, newObject) => {
+  if (typeof oldObject !== "object" || typeof newObject !== "object") {
+    throw new Error("Both oldObject and newObject must be objects.");
+  }
 
-      if (newObject.hasOwnProperty(key)) {
-          oldObject[key] = newObject[key];
-      }
-  });
+  for (let key in oldObject) {
+    if (newObject.hasOwnProperty(key)) {
+      oldObject[key] = newObject[key];
+    }
+  }
+
   return oldObject;
 };
